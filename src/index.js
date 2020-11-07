@@ -27,7 +27,11 @@ init({
     mapPlugin.password = credentials.password;
   }
   loadMap("ZBjCfSaLSqD", "map1");
-  loadMap("ZBjCfSaLSqD", "map1");
+  loadMap("mZKtu7sY0w4", "map2");
+  loadMap("GlCLRPPLsWF", "map3");
+  loadMap("kNYqHu3e7o3", "map4");
+  loadMap("HVIYhS1C4ft", "map5");
+  loadMap("ZF6UZ9Sg5Ai", "map6");
 });
 
 const loadMap = (mapId, container) => {

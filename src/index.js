@@ -1,54 +1,41 @@
-import { init, config } from "d2";
-import mapApi from "./webmap/mapApi";
+import { init } from "d2";
 
-import { loadMap } from "./loadMap";
+import { mapRequest } from "./util/requests";
 
 import "./styles.css";
 
+const mapPlugin = global["mapPlugin"];
+
+const credentials = {
+  baseUrl: "https://play.dhis2.org/2.33.6",
+  username: "admin",
+  password: "district",
+  auth: "admin:district",
+};
+
 init({
-  baseUrl: "https://play.dhis2.org/2.35.0/api/35",
+  baseUrl: `${credentials.baseUrl}/api/33`,
   headers: {
-    Authorization: `Basic ${btoa("admin:district")}`,
+    Authorization: `Basic ${btoa(credentials.auth)}`,
   },
 }).then((d2) => {
-  config.schemas = [
-    "dataElement",
-    "dataElementGroup",
-    "dataSet",
-    "externalMapLayer",
-    "indicator",
-    "indicatorGroup",
-    "legendSet",
-    "map",
-    "optionSet",
-    "organisationUnit",
-    "organisationUnitGroup",
-    "organisationUnitGroupSet",
-    "organisationUnitLevel",
-    "program",
-    "programStage",
-    "userGroup",
-  ];
-
-  initMap("ZBjCfSaLSqD", "map1"); // thematic
-  initMap("mZKtu7sY0w4", "map2"); // events
-  initMap("GlCLRPPLsWF", "map3"); // thematic + boundary
-  initMap("kNYqHu3e7o3", "map4"); //
-  initMap("HVIYhS1C4ft", "map5"); // thematic + earthEngine
-  initMap("ZF6UZ9Sg5Ai", "map6"); // facilities
+  mapPlugin.url = credentials.baseUrl;
+  mapPlugin.loadingIndicator = true;
+  mapPlugin.dashboard = true;
+  if (credentials.username && credentials.password) {
+    mapPlugin.username = credentials.username;
+    mapPlugin.password = credentials.password;
+  }
+  loadMap("ZBjCfSaLSqD", "map1");
+  loadMap("ZBjCfSaLSqD", "map1");
 });
 
-const initMap = (mapId, containerId, baseMapId) => {
-  const mapContainerWrapper = document.getElementById(containerId);
-
-  if (mapContainerWrapper) {
-    const map = mapApi({});
-
-    mapContainerWrapper.appendChild(map.getContainer());
-
-    map.on("ready", function () {
-      map.resize();
-      loadMap(mapId, map, baseMapId);
-    });
-  }
+const loadMap = (mapId, container) => {
+  mapRequest(mapId).then((map) => {
+    const config = {
+      ...map,
+      el: container,
+    };
+    mapPlugin.load(config);
+  });
 };

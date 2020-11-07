@@ -19,6 +19,8 @@ const layerType = {
 export const fetchLayer = (config) => {
   const Loader = layerType[config.layer];
 
+  console.log(config.layer);
+
   if (Loader) {
     return Loader({
       ...config,

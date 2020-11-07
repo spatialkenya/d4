@@ -5,6 +5,15 @@ import { isValidCoordinate } from "../util/map";
 import { getDisplayProperty } from "../util/helpers";
 import { getOrgUnitsFromRows } from "../util/analytics";
 import { createAlert } from "../util/alerts";
+import { filterData } from "../util/filters";
+
+import {
+  LABEL_FONT_SIZE,
+  LABEL_FONT_STYLE,
+  LABEL_FONT_WEIGHT,
+  LABEL_FONT_COLOR,
+} from "../constants/layers";
+import { cssColor } from "../util/colors";
 
 const facilityLoader = async (config) => {
   // Returns a promise
@@ -67,7 +76,7 @@ const facilityLoader = async (config) => {
 
   const name = i18n.t("Facilities");
 
-  return {
+  const layerConfig = {
     ...config,
     data: features,
     name,
@@ -77,6 +86,61 @@ const facilityLoader = async (config) => {
     isExpanded: true,
     isVisible: true,
   };
+
+  return createLayerConfig(layerConfig);
+};
+
+const createLayerConfig = (layerConfig) => {
+  const {
+    id,
+    index,
+    opacity,
+    isVisible,
+    data,
+    dataFilters,
+    labels,
+    areaRadius,
+    labelFontColor,
+    labelFontSize,
+    labelFontStyle,
+    labelFontWeight,
+  } = layerConfig;
+
+  const filteredData = filterData(data, dataFilters);
+
+  // Create layer config object
+  const config = {
+    type: "markers",
+    id,
+    index,
+    opacity,
+    isVisible,
+    data: filteredData,
+    hoverLabel: "{label}",
+    // onClick: this.onFeatureClick.bind(this),
+    // onRightClick: this.onFeatureRightClick.bind(this),
+  };
+
+  // Labels and label style
+  if (labels) {
+    const fontSize = labelFontSize || LABEL_FONT_SIZE;
+
+    config.label = "{name}";
+    config.labelStyle = {
+      fontSize,
+      fontStyle: labelFontStyle || LABEL_FONT_STYLE,
+      fontWeight: labelFontWeight || LABEL_FONT_WEIGHT,
+      lineHeight: parseInt(fontSize, 10) * 1.2 + "px",
+      color: cssColor(labelFontColor) || LABEL_FONT_COLOR,
+      paddingTop: "10px",
+    };
+  }
+
+  if (areaRadius) {
+    config.buffer = areaRadius;
+  }
+
+  return config;
 };
 
 const parseFacilities = (facilities, groupSetId) =>

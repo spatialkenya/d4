@@ -5,6 +5,9 @@ import { toGeoJson } from "../util/map";
 import { getOrgUnitsFromRows } from "../util/analytics";
 import { getDisplayProperty, getDisplayPropertyUrl } from "../util/helpers";
 import { createAlert } from "../util/alerts";
+import { filterData } from "../util/filters";
+
+import { LABEL_FONT_SIZE, LABEL_FONT_STYLE } from "../constants/layers";
 
 const colors = ["#111111", "#377eb8", "#a65628", "#984ea3", "#4daf4a"];
 const weights = [2, 1, 0.75, 0.5];
@@ -58,7 +61,7 @@ const boundaryLoader = async (config) => {
     })),
   };
 
-  return {
+  const layerConfig = {
     ...config,
     data: features,
     name: layerName,
@@ -69,6 +72,59 @@ const boundaryLoader = async (config) => {
     isExpanded: true,
     isVisible: true,
   };
+
+  return createLayerConfig(layerConfig);
+};
+
+const createLayerConfig = (layerConfig) => {
+  const {
+    id,
+    index,
+    opacity,
+    isVisible,
+    data,
+    labels,
+    labelFontSize,
+    labelFontStyle,
+    radiusLow,
+    dataFilters,
+  } = layerConfig;
+
+  const filteredData = filterData(data, dataFilters);
+
+  const config = {
+    type: "boundary",
+    id,
+    index,
+    opacity,
+    isVisible,
+    data: filteredData,
+    hoverLabel: "{name}",
+    style: {
+      opacity: 1,
+      fillOpacity: 0,
+      fill: false,
+    },
+    // onClick: this.onFeatureClick.bind(this),
+    // onRightClick: this.onFeatureRightClick.bind(this),
+  };
+
+  if (labels) {
+    const fontSize = labelFontSize || LABEL_FONT_SIZE;
+
+    config.label = "{name}";
+    config.labelStyle = {
+      fontSize,
+      fontStyle: labelFontStyle || LABEL_FONT_STYLE,
+      lineHeight: parseInt(fontSize, 10) * 1.2 + "px",
+    };
+  }
+
+  if (radiusLow) {
+    config.style.radius = radiusLow;
+  }
+
+  return config;
 };
 
 // This function returns the org unit level names used in the legend

@@ -24,11 +24,20 @@ import {
   THEMATIC_BUBBLE,
   THEMATIC_RADIUS_LOW,
   THEMATIC_RADIUS_HIGH,
+  THEMATIC_CHOROPLETH,
   RENDERING_STRATEGY_SINGLE,
   CLASSIFICATION_PREDEFINED,
   CLASSIFICATION_SINGLE_COLOR,
   NO_DATA_COLOR,
+  LABEL_FONT_SIZE,
+  LABEL_FONT_STYLE,
+  LABEL_FONT_WEIGHT,
+  LABEL_FONT_COLOR,
 } from "../constants/layers";
+
+import { polygonsToPoints } from "../util/geojson";
+import { cssColor } from "../util/colors";
+import { filterData } from "../util/filters";
 
 const thematicLoader = async (config) => {
   const {
@@ -64,6 +73,7 @@ const thematicLoader = async (config) => {
       legend: null,
       isLoaded: true,
       isVisible: true,
+      type: "choropleth",
     };
   }
 
@@ -209,7 +219,7 @@ const thematicLoader = async (config) => {
     legend.items.push({ color: noDataColor, name: i18n.t("No data") });
   }
 
-  return {
+  const layerConfig = {
     ...config,
     data: valueFeatures,
     periods,
@@ -222,6 +232,60 @@ const thematicLoader = async (config) => {
     isExpanded: true,
     isVisible: true,
   };
+
+  return createLayerConfig(layerConfig);
+};
+
+const createLayerConfig = (layerConfig) => {
+  const {
+    id,
+    index,
+    opacity,
+    isVisible,
+    data,
+    dataFilters,
+    labels,
+    labelFontSize,
+    labelFontStyle,
+    labelFontWeight,
+    labelFontColor,
+    valuesByPeriod,
+    renderingStrategy = RENDERING_STRATEGY_SINGLE,
+    thematicMapType = THEMATIC_CHOROPLETH,
+    noDataColor,
+  } = layerConfig;
+
+  const bubbleMap = thematicMapType === THEMATIC_BUBBLE;
+
+  let periodData = bubbleMap ? polygonsToPoints(data) : data;
+
+  const filteredData = filterData(periodData, dataFilters);
+
+  const config = {
+    type: "choropleth",
+    id,
+    index,
+    opacity,
+    isVisible,
+    data: filteredData,
+    hoverLabel: "{name} ({value})",
+    color: noDataColor,
+  };
+
+  if (labels) {
+    const fontSize = labelFontSize || LABEL_FONT_SIZE;
+
+    config.label = "{name}";
+    config.labelStyle = {
+      fontSize,
+      fontStyle: labelFontStyle || LABEL_FONT_STYLE,
+      fontWeight: labelFontWeight || LABEL_FONT_WEIGHT,
+      color: cssColor(labelFontColor) || LABEL_FONT_COLOR,
+      lineHeight: parseInt(fontSize, 10) * 1.2 + "px",
+    };
+  }
+
+  return config;
 };
 
 const getPeriodsFromMetaData = ({ dimensions, items }) =>

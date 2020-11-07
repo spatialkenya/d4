@@ -1,4 +1,5 @@
 import i18n from "@dhis2/d2-i18n";
+import { apiFetch } from "../util/api";
 
 const getDatasets = () => ({
   "USGS/SRTMGL1_003": {
@@ -233,12 +234,70 @@ const earthEngineLoader = async (config) => {
     layer.legend.items = createLegend(layer.params);
   }
 
-  return {
+  const lConfig = {
     ...layer,
     isLoaded: true,
     isExpanded: true,
     isVisible: true,
   };
+
+  return createLayerConfig(lConfig);
+};
+
+const createLayerConfig = (layerConfig) => {
+  const {
+    id,
+    index,
+    opacity,
+    isVisible,
+    datasetId,
+    band,
+    mask,
+    attribution,
+    filter,
+    methods,
+    aggregation,
+    name,
+    legend,
+    value,
+    resolution,
+    projection,
+    params,
+    popup,
+  } = layerConfig;
+
+  const config = {
+    type: "earthEngine",
+    id,
+    index,
+    opacity,
+    isVisible,
+    datasetId,
+    band,
+    mask,
+    attribution,
+    filter,
+    methods,
+    aggregation,
+    name,
+    unit: legend.unit,
+    value: value,
+    legend: legend && !legend.unit ? legend.items : null,
+    resolution,
+    projection,
+  };
+
+  if (params) {
+    config.params = params;
+  }
+
+  if (popup) {
+    config.popup = popup;
+  }
+
+  config.accessToken = apiFetch("/tokens/google"); // returns promise
+
+  return config;
 };
 
 // TODO: This function is currently duplicated from  GIS API

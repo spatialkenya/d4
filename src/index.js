@@ -30,10 +30,12 @@ init({
     "userGroup",
   ];
 
-  // initMap("ZBjCfSaLSqD", "map1");
-  initMap("LRlMopleWMf", "map2");
-  // initMap("mZKtu7sY0w4", "map2", "openStreetMap");
-  // initMap("voX07ulo2Bq", "map2");
+  initMap("ZBjCfSaLSqD", "map1"); // thematic
+  initMap("mZKtu7sY0w4", "map2"); // events
+  initMap("GlCLRPPLsWF", "map3"); // thematic + boundary
+  initMap("kNYqHu3e7o3", "map4"); //
+  initMap("HVIYhS1C4ft", "map5"); // thematic + earthEngine
+  initMap("ZF6UZ9Sg5Ai", "map6"); // facilities
 });
 
 const initMap = (mapId, containerId, baseMapId) => {

@@ -1,0 +1,31 @@
+{
+    "name": "vanilla",
+    "version": "1.0.0",
+    "description": "JavaScript example starter project",
+    "main": "index.html",
+    "scripts": {
+        "start": "parcel index.html --port 3000 --open",
+        "build": "parcel build index.html"
+    },
+    "dependencies": {
+        "@dhis2/d2-i18n": "^1.0.6",
+        "@dhis2/maps-gl": "^1.3.3",
+        "d2": "31.8.2",
+        "d2-utilizr": "^0.2.16",
+        "d3-format": "^2.0.0",
+        "d3-scale": "^3.2.3",
+        "file-saver": "^2.0.2",
+        "lodash": "4.17.20"
+    },
+    "devDependencies": {
+        "@babel/core": "7.2.0",
+        "parcel-bundler": "^1.6.1"
+    },
+    "keywords": [
+        "javascript",
+        "starter"
+    ],
+    "browserslist": [
+        "last 1 Chrome version"
+    ]
+}
